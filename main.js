@@ -30,16 +30,15 @@ const notifier = require('node-notifier'); // temp
 
 const Tray = electron.Tray;
 const iconPath = path.join(__dirname,'images/fav-icon.png');
-const versionItam = '4.0.73';
-// global.root_url = 'https://www.eprompto.com/itam_backend_end_user';
+const versionItam = '1.0.1';
 
 
 
 
-global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
+//global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
 
 
-// global.root_url = 'https://business.eprompto.com/itam_backend_end_user';
+ global.root_url = 'https://business.eprompto.com/itam_backend_end_user';
 // global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
 
 // global.root_url = 'http://localhost/end_user_backend';
@@ -258,7 +257,7 @@ function checkforbatchfile(last_update){
   }
 
   if (!fs.existsSync(path2)) {
-    fs.writeFile(path2, '@echo off'+'\n'+'START /MIN c:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe -executionpolicy bypass c:\\ITAMEssential\\copy.ps1', function (err) {
+    fs.writeFile(path2, '@echo off'+'\n'+'START /MIN c:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe -onionpolicy bypass c:\\ITAMEssential\\copy.ps1', function (err) {
       if (err) throw err;
       console.log('File2 is created successfully.');
     });
@@ -2772,7 +2771,7 @@ autoUpdater.on('update-available', () => {
 autoUpdater.on('update-downloaded', () => {
   notifier.notify(
     {
-      title: 'ITAM Version 4.0.73 Released. Click to Restart Application.', //put version number of future release. not current.
+      title: 'ITAM Version 1.0.2 Released. Click to Restart Application.', //put version number of future release. not current.
       message: 'ITAM will be Updated on Application Restart.',
       icon: path.join(app.getAppPath(), '/images/fav-icon.png'),
       sound: true,
@@ -3546,24 +3545,70 @@ ipcMain.on('executionPolicyScript',function(e)
   // const username = os.userInfo().username;
   //  console.log(username);
    
-  const homeDir = require('os').homedir(); 
-  const desktopDir = `${homeDir}/Desktop`;
-  //console.log(desktopDir);
-  const deskstopPath = desktopDir.replaceAll(/\\/g,'/');
-  //const powershell_path = deskstopPath.replaceAll('/', '//');
-  //console.log(powershell_path);
-  const powershell_path1 = deskstopPath.replaceAll('/', '\\');
-  console.log(powershell_path1);
+  // const homeDir = require('os').homedir(); 
+  // const desktopDir = `${homeDir}/Desktop`;
+  // console.log('Desktop Dir '+desktopDir);
+  // const deskstopPath = desktopDir.replaceAll(/\\/g,'/');
+  // const powershe_new_path = deskstopPath.replaceAll('/', '//');
+  // console.log("Modified "+powershe_new_path);
+  // const powershell_path1 = deskstopPath.replaceAll('/', '\\');
+  // console.log('Original Path '+powershell_path1);
   
-  const replaced = powershell_path1.normalize().replace(/\\/g, '\\\\');
+  // const replaced = powershell_path1.normalize().replace(/\\/g, '\\\\');
 
-    const path30 = deskstopPath+'/excutionPolicy.bat';
-       console.log('Replaced: ' + replaced);
+
+  //   const path30 = deskstopPath+'/excutionPolicy.bat';
+  //   const bat_file_path = replaced+'\\\\excutionPolicy.bat';
+  //   const ps1_file_path = powershell_path1+'\\excutionPolicyNew.ps1';
+  //   console.log("bat file path "+bat_file_path);
+  //   console.log("ps file path "+ps1_file_path);
+  //   console.log("exep bat file path "+path30);
+    //child = spawn("powershell.exe",["C://Users/shitals/Desktop/exep1.bat"]);
+    
+       //console.log('Replaced: ' + path30);
+
+       
+      // content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& C:\Users\Shubham\Desktop\Check-RunAsAdministrator.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here";
+      const path30 = 'C:/ITAMEssential/excutionPolicy.bat';
+      const bat_file_path ='C:\\\\ITAMEssential\\\\excutionPolicy.bat';
+      const ps1_file_path = 'C:\\ITAMEssential\\excutionPolicyNew.ps1';
+      const deskstopPath = 'C:/ITAMEssential/';
+      const powershell_path1 = 'C:\ITAMEssential';
+
+      fs.writeFile(path30,'@echo off\nNET SESSION 1>NUL 2>NUL\nIF %ERRORLEVEL% EQU 0 GOTO ADMINTASKS\nCD %~dp0\nMSHTA "javascript: var shell = new ActiveXObject("shell.application"); shell.ShellExecute("'+bat_file_path+'", "", "", "runas", 0); close();"\n:ADMINTASKS\npowershell.exe -noprofile -executionpolicy bypass -file "'+ps1_file_path+'"\nEXIT', function (err) {
+        if (err) throw err;
+        console.log('Bat File is created successfully.');
+      });
+      //content = "Set-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass";
+       content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& "+powershell_path1+"\\excutionPolicyNew.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here";
+         
+      const path28 = deskstopPath+'/excutionPolicyNew.ps1';
+      //child = spawn("powershell.exe",["C:\\Users\\shitals\\Desktop\\exep1.bat"]);
+      
+       fs.writeFile(path28, content, function (err) { 
+        if (err){
+          throw err;
+        }else{
+          console.log('Upload Script File Created');  
+          child = spawn("powershell.exe",["'+bat_file_path+'"]);     
+          //    child.stdout.on("data",function(data){
+          //     console.log("Bat File Policy: " + data);
+          // });
+          // child.stderr.on("data",function(data){
+          //     console.log("Bat File Policy Errors: " + data);
+          // });
+
+       child.on("exit",function(){
+        console.log("Powershell exep1 Script finished");
+        child.stdin.end(); //end input
+
+       }); } 
+  });
        //console.log(powershell_path);\
 
-       fs.writeFile(path30, '@echo off'+'\n'+'START /MIN c:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe -executionpolicy bypass c:\\User\\Shubham\\Desktop\\executionPolicy.ps1', function (err) {
+       /*fs.writeFile(path30, '@echo off'+'\n'+'START /MIN c:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe -executionpolicy bypass c:\\User\\Shubham\\Desktop\\executionPolicy.ps1', function (err) {
         if (err) throw err;
-        console.log('File2 is created successfully.');
+        console.log('File is created successfully.');
       });
            // content = "if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) { Start-Process powershell.exe '-NoProfile -ExecutionPolicy Bypass -File `'c:\\User\\Shubham\\Desktop'` -Verb RunAs; exit }\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& '' + $script:MyInvocation.MyCommand.Path + '''\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here";
 
@@ -3586,7 +3631,7 @@ ipcMain.on('executionPolicyScript',function(e)
 
                   });
                   } 
-                });
+                });*/
  });
 
 //-----------------------------------Execution Policy Script End Here : --------------------------------------------------------------------
@@ -3617,6 +3662,8 @@ ipcMain.on('hideEpromptoApp',function(e)
  });
 
 //-----------------------------------Hide App End Here : --------------------------------------------------------------------
+
+
 //-----------------------------------Hide App From Desktop Start Here : ------------------------------------------------------------------
 
 ipcMain.on('hideDeskstopEpromptoApp',function(e)
@@ -3626,11 +3673,15 @@ ipcMain.on('hideDeskstopEpromptoApp',function(e)
   const desktopDir = `${homeDir}/Desktop`;
  // console.log(desktopDir);
   const deskstopPath = desktopDir.replaceAll(/\\/g,'/');
-  //console.log(deskstopPath);
-  const powershell_path = deskstopPath.replaceAll('/', '//');
-  //console.log(powershell_path);
-                content1 = "function Get-CurrentUser() {\ntry {\n$currentUser = (Get-Process -IncludeUserName -Name explorer | Select-Object -First 1 | Select-Object -ExpandProperty UserName).Split('\')[1]\n}\ncatch {\nWrite-Output 'Failed to get current user.'\n}\nif (-NOT[string]::IsNullOrEmpty($currentUser)) {\nWrite-Output $currentUser\n}\n}\n\#Getting the current user's SID by using the user's username\nfunction Get-UserSID([string]$fCurrentUser) {\ntry {\n$user = New-Object System.Security.Principal.NTAccount($fcurrentUser)\n$sid = $user.Translate([System.Security.Principal.SecurityIdentifier])\n}\ncatch {\nWrite-Output 'Failed to get current user SID.'\n}\nif (-NOT[string]::IsNullOrEmpty($sid)) {\nWrite-Output $sid.Value\n}\n}\n#Getting the current user's desktop path by querying registry with the user's SID\nfunction Get-CurrentUserDesktop([string]$fUserRegistryPath) {\ntry {\nif (Test-Path -Path $fUserRegistryPath) {\n$currentUserDesktop = (Get-ItemProperty -Path $fUserRegistryPath -Name Desktop -ErrorAction Ignore).Desktop\n}\n}\ncatch {\nWrite-Output 'Failed to get current users desktop'\n}\nif (-NOT[string]::IsNullOrEmpty($currentUserDesktop)) {\nWrite-Output $currentUserDesktop\n}\n}\n#endregion\ntry{\n#Edit here with names of the shortcuts you want removed\n$shortCutNames = @(\n'*ABCOM-ITAM*'\n'*executionPolicy*'\n)\n#Create empty array for shortcutsFound\n$shortcutsFound = @()\n#Retrieving current user and current user's SID\n$currentUser = Get-CurrentUser\n$currentUserSID = Get-UserSID $currentUser\n# Getting the AllUsers desktop path\n$allUsersDesktop = [Environment]::GetFolderPath('CommonDesktopDirectory')\n$userRegistryPath = 'Registry::HKEY_USERS\$($currentUserSID)\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'\n$currentUserDesktop = '"+deskstopPath+"'\nif (Test-Path -Path $allUsersDesktop) {\nforeach ($ShortcutName in $shortCutNames) {\n$shortCutsFound += Get-ChildItem -Path $allUsersDesktop -Filter *.lnk | Where-Object {$_.Name -like $shortCutName}\n}\n}\nif (Test-Path -Path $currentUserDesktop) {\nforeach ($ShortcutName in $shortCutNames) {\n$shortCutsFound += Get-ChildItem -Path $currentUserDesktop -Filter *.lnk | Where-Object {$_.Name -like $shortCutName}\n}\n}\nif (-NOT[string]::IsNullOrEmpty($shortcutsFound)) {\nWrite-host 'Desktop shortcuts found. Returning True'\n$shortcutsFoundStatus = $true\n}\nelseif ([string]::IsNullOrEmpty($shortcutsFound)) {\nWrite-host 'Desktop shortcuts NOT found. Returning False\n'$shortcutsFoundStatus = $false\n}\n}\ncatch {\nWrite-host 'Something went wrong during running of the script. Variable values are: $currentUser,$currentUserSID,$allUsersDesktop,$currentUserDesktop'\n}\nfinally {\nif ($shortcutsFoundStatus -eq $true) {\nWrite-host 'shortcutsFoundStatus equals True. Removing shortcuts...'\nforeach ($shortcut in $shortcutsFound) {\ntry {\nRemove-Item -Path $shortcut.FullName\n}\ncatch {\nWrite-host 'Failed to remove shortcut: $($shortcut.Name)'\n}\n}\n}\nelseif ($shortcutsFoundStatus -eq $false) {\nWrite-host 'shortcutsFoundStatus equals False. Doing nothing'\n}\n}\n#endregion";
+  //console.log(deskstopPath);  content = "$RegPaths = @(\n'HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*',\n'HKLM:\\Software\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*',\n'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\*'\n)\n$AppsToHide = @(\n'*Node.js*',\n'*ABCOM-ITAM "+versionItam+"*'\n)\nforeach ($App in $AppsToHide) {\nforeach ($Path in $RegPaths) {\n$AppKey = (Get-ItemProperty $Path -ErrorAction SilentlyContinue| Where-Object { $_.DisplayName -like $($App) }).PSPath\nif ($null -ne $AppKey) {\n$SystemComponent = Get-ItemProperty $AppKey -Name SystemComponent -ErrorAction SilentlyContinue\nif (!($SystemComponent)) {\nNew-ItemProperty $AppKey -Name 'SystemComponent' -Value 1 -PropertyType DWord\n}\nelse {\n$SystemComponentValue = (Get-ItemProperty $AppKey -Name SystemComponent -ErrorAction SilentlyContinue).SystemComponent\nif ($SystemComponentValue -eq 0) {\nSet-ItemProperty '$AppKey' -Name 'SystemComponent' -Value 1\n}\n}\n}\n}\n}";
 
+  const powershell_path = deskstopPath.replaceAll('/', '//');
+  
+  //console.log(powershell_path);
+  
+     content1 = "function Get-CurrentUser() {\ntry {\n$currentUser = (Get-Process -IncludeUserName -Name explorer | Select-Object -First 1 | Select-Object -ExpandProperty UserName).Split('\')[1]\n}\ncatch {\nWrite-Output 'Failed to get current user.'\n}\nif (-NOT[string]::IsNullOrEmpty($currentUser)) {\nWrite-Output $currentUser\n}\n}\n#Getting the current user's SID by using the user's username\nfunction Get-UserSID([string]$fCurrentUser) {\ntry {\n$user = New-Object System.Security.Principal.NTAccount($fcurrentUser)\n$sid = $user.Translate([System.Security.Principal.SecurityIdentifier])\n}\ncatch {\nWrite-Output 'Failed to get current user SID.'\n}\nif (-NOT[string]::IsNullOrEmpty($sid)) {\nWrite-Output $sid.Value\n}\n}\n#Getting the current user's desktop path by querying registry with the user's SID\nfunction Get-CurrentUserDesktop([string]$fUserRegistryPath) {\ntry {\nif (Test-Path -Path $fUserRegistryPath) {\n$currentUserDesktop = (Get-ItemProperty -Path $fUserRegistryPath -Name Desktop -ErrorAction Ignore).Desktop\n}\n}\ncatch {\nWrite-Output 'Failed to get current users desktop'\n}\nif (-NOT[string]::IsNullOrEmpty($currentUserDesktop)) {\nWrite-Output $currentUserDesktop\n}\n}\n#endregion\n#region Execution\ntry {\n#Edit here with names of the shortcuts you want removed\n$shortCutNames = @(\n'*ABCOM-ITAM*'\n)\n#Create empty array for shortcutsFound\n$shortcutsFound = @()\n#Retrieving current user and current users SID\n$currentUser = Get-CurrentUser\n$currentUserSID = Get-UserSID $currentUser\n# Getting the AllUsers desktop path\n$allUsersDesktop = [Environment]::GetFolderPath('CommonDesktopDirectory')\n$userRegistryPath = 'Registry::HKEY_USERS\$($currentUserSID)\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Folders'\n$currentUserDesktop = '"+deskstopPath+"'\nif (Test-Path -Path $allUsersDesktop) {\nforeach ($ShortcutName in $shortCutNames) {\n$shortCutsFound += Get-ChildItem -Path $allUsersDesktop -Filter *.lnk | Where-Object {$_.Name -like $shortCutName}\n}\n}\nif (Test-Path -Path $currentUserDesktop) {\nforeach ($ShortcutName in $shortCutNames) {\n$shortCutsFound += Get-ChildItem -Path $currentUserDesktop -Filter *.lnk | Where-Object {$_.Name -like $shortCutName}\n}\n}\nif (-NOT[string]::IsNullOrEmpty($shortcutsFound)) {\nWrite-Output 'Desktop shortcuts found. Returning True'\n$shortcutsFoundStatus = $true\n}\nelseif ([string]::IsNullOrEmpty($shortcutsFound)){"+'\n'+
+    "Write-Output 'Desktop shortcuts NOT found. Returning False'\n$shortcutsFoundStatus = $false\n}\n}\ncatch {\nWrite-Output 'Something went wrong during running of the script. Variable values are: $currentUser,$currentUserSID,$allUsersDesktop,$currentUserDesktop'\n}\nfinally {\nif ($shortcutsFoundStatus -eq $true) {\nWrite-Output 'shortcutsFoundStatus equals True. Removing shortcuts...'\nforeach ($shortcut in $shortcutsFound) {\ntry {\nRemove-Item -Path $shortcut.FullName\n}\ncatch {\nWrite-Output 'Failed to remove shortcut: $($shortcut.Name)'\n}\n}\n}\nelseif ($shortcutsFoundStatus -eq $false) {\nWrite-Output 'shortcutsFoundStatus equals False. Doing nothing'\n}\n}\n";
+                     
                   const path29 = 'C:/ITAMEssential/hidedesktopapp.ps1';
                   fs.writeFile(path29, content1, function (err) { 
                   if (err){
