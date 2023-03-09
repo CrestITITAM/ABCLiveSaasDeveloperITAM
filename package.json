@@ -1,6 +1,6 @@
 {
   "name": "ABCOM-ITAM",
-  "version": "4.0.73",
+  "version": "1.0.4",
   "description": "To AutoUpdate in ITAM",
   "main": "main.js",
   "scripts": {
@@ -14,6 +14,7 @@
       "target": "nsis",
       "icon": "images/fav-icon.png"
     }
+   
   },
   "repository": {
     "type": "git",

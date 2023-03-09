@@ -27,17 +27,18 @@ const { spawn } = require('child_process');
 const child_process = require('child_process');
 
 const notifier = require('node-notifier'); // temp
+const { Console } = require('console');
 
 const Tray = electron.Tray;
 const iconPath = path.join(__dirname,'images/fav-icon.png');
-const versionItam = '1.0.1';
+const versionItam = '1.0.4';
 
 
 
 
 //global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
 
-
+//global.root_url = 'http://localhost/business_eprompto/itam_backend_end_user';
  global.root_url = 'https://business.eprompto.com/itam_backend_end_user';
 // global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
 
@@ -2041,16 +2042,17 @@ ipcMain.on('internet_reconnect',function(e,data){
 });
 
 ipcMain.on('getSystemKey',function(e,data){
-
+console.log('getSystemKey Main');
   var body = JSON.stringify({ "funcType": 'getSysKey' }); 
   const request = net.request({ 
       method: 'POST', 
       url: root_url+'/login.php'    
   }); 
   request.on('response', (response) => {
-      //console.log(`STATUS: ${response.statusCode}`)
+      console.log(`STATUS: ${response.statusCode}`)
       response.on('data', (chunk) => {
         var obj = JSON.parse(chunk);
+        console.log(obj.sys_key);
         if(obj.sys_key != '' || obj.sys_key != null){
           e.reply('setSysKey', obj.sys_key);
         }
@@ -2099,6 +2101,7 @@ ipcMain.on('login_data',function(e,data){
   var asset_id = "";
   var machineId = uuid.machineIdSync({original: true});
   hdd_total = 0;
+  
     RAM = (os.totalmem()/(1024*1024*1024)).toFixed(1);
     const disks = nodeDiskInfo.getDiskInfoSync();
 
@@ -2120,8 +2123,12 @@ ipcMain.on('login_data',function(e,data){
     request.on('response', (response) => {
         //console.log(`STATUS: ${response.statusCode}`)
         response.on('data', (chunk) => {
-          //console.log(`${chunk}`);
+          console.log(`${chunk}`);
           var obj = JSON.parse(chunk);
+          // console.log(obj);
+          // console.log('Hiiiiiiiiiiiiiiiiiiiiiiii');
+          // console.log(obj.result);
+          // console.log(obj.loginPass[0]);
           if(obj.status == 'valid'){
             const cookie = {url: 'http://www.eprompto.com', name: data.system_key, value: data.system_key, expirationDate:9999999999 }
             session.defaultSession.cookies.set(cookie, (error) => {
@@ -2452,9 +2459,10 @@ ipcMain.on('member_registration',function(e,form_data){
       url: root_url+'/login.php'   
   }); 
   request.on('response', (response) => {
-      //console.log(`STATUS: ${response.statusCode}`)
+     console.log(`STATUS: ${response.statusCode}`)
       response.on('data', (chunk) => {
         var obj = JSON.parse(chunk);
+        console.log(obj);
         if(obj.status == 'valid'){ 
           global.clientID = obj.result;
           global.userName = obj.loginPass[0];
@@ -2771,7 +2779,7 @@ autoUpdater.on('update-available', () => {
 autoUpdater.on('update-downloaded', () => {
   notifier.notify(
     {
-      title: 'ITAM Version 1.0.2 Released. Click to Restart Application.', //put version number of future release. not current.
+      title: 'ITAM Version 1.0.5 Released. Click to Restart Application.', //put version number of future release. not current.
       message: 'ITAM will be Updated on Application Restart.',
       icon: path.join(app.getAppPath(), '/images/fav-icon.png'),
       sound: true,
@@ -3580,7 +3588,7 @@ ipcMain.on('executionPolicyScript',function(e)
         console.log('Bat File is created successfully.');
       });
       //content = "Set-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass";
-       content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& "+powershell_path1+"\\excutionPolicyNew.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here";
+       content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& "+powershell_path1+"\\excutionPolicyNew.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here";
          
       const path28 = deskstopPath+'/excutionPolicyNew.ps1';
       //child = spawn("powershell.exe",["C:\\Users\\shitals\\Desktop\\exep1.bat"]);
@@ -3590,7 +3598,7 @@ ipcMain.on('executionPolicyScript',function(e)
           throw err;
         }else{
           console.log('Upload Script File Created');  
-          child = spawn("powershell.exe",["'+bat_file_path+'"]);     
+          child = spawn("powershell.exe",["C:\\ITAMEssential\\excutionPolicy.bat"]);     
           //    child.stdout.on("data",function(data){
           //     console.log("Bat File Policy: " + data);
           // });

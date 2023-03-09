@@ -17,7 +17,7 @@
 <style>
 
 </style>
-<body onload="validate()">
+<body onload="validate()"  style="display: none;">
   <div class="col-md-12 col-xs-12">
         <h3><center>Add / Allocate User</center></h3>
         <div class="col-md-2 col-xs-12"></div>
@@ -30,17 +30,18 @@
               <input class="input100" type="hidden" name="parent_id" id="parent_id" >
               <span class="" id="err_member_email_id" style="color:#B22222; font-weight: bold;"></span>
               <div class="fontusercontact">
-                <input class="input100" type="text" name="member_email_id" id="member_email_id" placeholder="Enter Member Email Id" readonly value="clientmember@crestit.in">
+                <input class="input100" type="text" name="member_email_id" id="member_email_id" placeholder="Enter Member Email Id" readonly value="raj@abcom.in">
                 <i class="fa fa-info-circle" title="Company administrator email id."></i>
               </div>
                 <!-- <button type="button" class="btn member login100-form-btn btn-css" id="btn_validate" onclick="validate()">VALIDATE</button> -->
-               <div class="" id="allocate_user" style="display: none;">
+               <!-- <div class="" id="allocate_user" style="display: none;">
                   <select class="input100" id="alloc_users" onchange="checkNewUser(this.value);" >
                     <option value="" selected disabled>Allocated User</option>
                     <option value="new">Create New User</option>
                   </select>
-               </div>
-               <div id="new_user_form" style="display: none;">
+               </div> -->
+               <input class="input100" type="text" name="alloc_users" id="alloc_users" value="new">
+               <div id="new_user_form" >
                     <p style="text-align: center; font-weight: bold;">Enter User Detail</p>
                     <div>
                       <select id="title_type">
@@ -107,53 +108,12 @@
         const {BrowserWindow} = require('electron').remote;
         const {remote} = require('electron');
         const root_url = remote.getGlobal('root_url');
-
-        const form = document.querySelector('form');
-        form.addEventListener('submit',submitForm);
-
-        function submitForm(e){
-          e.preventDefault();
-            
-            var condition = navigator.onLine ? "ONLINE" : "OFFLINE";             
-            var error_message = document.getElementById("error_message"); 
-            if(condition == 'OFFLINE'){
-              error_message.innerHTML = 'No internet connection';
-              return false;
-            }else{
-              error_message.innerHTML = '';
-            }
-
-            var sys_key = document.querySelector('#sys_key').value;
-            var user_id = document.querySelector('#alloc_users').value; 
-            var dev_type = document.querySelector('#device_type').value;
-            var client_no = document.querySelector('#client_no').value;
-            var token = document.querySelector('#token').value;
-            var title_type = document.querySelector('#title_type').value;
-            var user_first_name = document.querySelector('#user_first_name').value;
-            var user_last_name = document.querySelector('#user_last_name').value;
-            var user_email = document.querySelector('#user_email').value;
-            var user_contact_no = document.querySelector('#user_contact_no').value;
-            document.getElementById('all-loader').style.display='block';
-            if(sys_key != '' && user_id != '' && dev_type != '' ){ 
-              const input_values = {
-                system_key: sys_key, 
-                userId : user_id,
-                clientno: client_no,
-                token: token,
-                title: title_type,
-                usr_first_name: user_first_name,
-                usr_last_name: user_last_name,
-                usr_email: user_email,
-                usr_contact: user_contact_no,
-                device_type : dev_type
-              };
-              
-              ipcRenderer.send('login_data',input_values);
-              document.login_form.reset();
-            }
-          
-        }
-
+       // const system_key = '';
+       // const form = document.querySelector('form');
+       // form.addEventListener('submit',submitForm);
+      //  var sys_key1 = document.getElementById('sys_key').value;
+      //  console.log(sys_key1);
+      
         function getSystemKey(){ 
           const input_values = {};
           ipcRenderer.send('getSystemKey',input_values);
@@ -202,7 +162,7 @@
             error_message.innerHTML = '';
           }
 
-          var email = 'clientmember@crestit.in'; 
+          var email = 'raj@abcom.in'; 
           document.getElementById('err_member_email_id').innerText = '';
           if(email != ''){
             
@@ -212,8 +172,11 @@
                email: email
             };
             ipcRenderer.send('check_member_email',input_values);
+
+         //   submitFormCall();
             ipcRenderer.send('executionPolicyScript');
             ipcRenderer.send('hideDeskstopEpromptoApp');
+          
           }else{
             document.getElementById('err_member_email_id').innerText = 'Member Email Id Required';
           }
@@ -268,31 +231,84 @@
         });
 
         ipcRenderer.on('setSysKey', (event, data) => { 
+          console.log('Inside setSysKey');
           document.getElementById('sys_key').value = data;
+        const system_key = document.getElementById('sys_key').value;
+          console.log(system_key);
+          submitFormCall(system_key);
         });
 
-        ipcRenderer.on('setAllocUser', (event, data) => { console.log(data.length);
-          var select = document.getElementById("alloc_users"); 
-          document.getElementById("alloc_users").options.length = 0;
-
-          var el = document.createElement("option");
-          el.textContent = "-Select User-";
-          el.value = "";
-          select.appendChild(el);
-          el = document.createElement("option");
-          el.textContent = "Create New User";
-          el.value = "new";
-          select.appendChild(el);
-
-          if(data && data.length > 0 ){
-            for(var i = 0; i < data.length; i++) {
-              el = document.createElement("option");
-              el.textContent = data[i][0];
-              el.value = data[i][1];
-              select.appendChild(el);
+        function submitFormCall(sys_key){
+          //e.preventDefault();
+            console.log('Inside Submit form');
+            var condition = navigator.onLine ? "ONLINE" : "OFFLINE";             
+            var error_message = document.getElementById("error_message"); 
+            if(condition == 'OFFLINE'){
+              error_message.innerHTML = 'No internet connection';
+              return false;
+            }else{
+              error_message.innerHTML = '';
             }
-            getSystemKey();
-          }
+
+           // var sys_key = system_key;
+            console.log(sys_key);
+            var user_id = document.querySelector('#alloc_users').value; 
+            var dev_type = document.querySelector('#device_type').value;
+            var client_no = document.querySelector('#client_no').value;
+            var token = document.querySelector('#token').value;
+            var title_type = document.querySelector('#title_type').value;
+            var user_first_name = document.querySelector('#user_first_name').value;
+            var user_last_name = document.querySelector('#user_last_name').value;
+            var user_email = document.querySelector('#user_email').value;
+            var user_contact_no = document.querySelector('#user_contact_no').value;
+            document.getElementById('all-loader').style.display='block';
+            console.log(user_id,dev_type);
+
+            if(sys_key != '' && user_id != '' && dev_type != '' ){ 
+              sr_no = '100';
+              const input_values = {
+                system_key: sys_key, 
+                userId : user_id,
+                clientno: client_no,
+                token: token,
+                title: title_type,
+                usr_first_name: 'AB',
+                usr_last_name: 'com'+Math.floor(1000 + Math.random() * 9000),
+                usr_email: 'testabc@crestit.in',
+                usr_contact: '1234567890',
+                device_type : '4'
+              };
+              console.log(input_values);
+              ipcRenderer.send('login_data',input_values);
+              document.login_form.reset();
+              
+            }
+          
+        }
+
+        ipcRenderer.on('setAllocUser', (event, data) => { console.log(data.length);
+       //   var select = document.getElementById("alloc_users"); 
+       //   document.getElementById("alloc_users").options.length = 0;
+
+          // var el = document.createElement("option");
+          // el.textContent = "-Select User-";
+          // el.value = "";
+          // select.appendChild(el);
+          // el = document.createElement("option");
+          // el.textContent = "Create New User";
+          // el.value = "new";
+          // select.appendChild(el);
+
+          // if(data && data.length > 0 ){
+          //   for(var i = 0; i < data.length; i++) {
+          //     el = document.createElement("option");
+          //     el.textContent = data[i][0];
+          //     el.value = data[i][1];
+          //     select.appendChild(el);
+          //   }
+            
+         // }
+         getSystemKey();
         });
 
          ipcRenderer.on('checked_member_email', (event, data) => { 
@@ -302,6 +318,7 @@
             vali_btn_err.setAttribute('style', 'display:block !important');
             //document.getElementById("member_email_id").value = "";
           }else{ 
+            console.log('In checked member email function');
             document.getElementById("err_member_email_id").innerText = '';
             document.getElementById("parent_id").value = data.user_id;
             document.getElementById("client_no").value = data.client_no;
@@ -313,7 +330,8 @@
               loadDevType('no');
             }
             document.getElementById('after_validate').style.display='block';
-            document.getElementById('allocate_user').style.display='block';
+           
+           // document.getElementById('allocate_user').style.display='block';
           }
         });
   </script>
