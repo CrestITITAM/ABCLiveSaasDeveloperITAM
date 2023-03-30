@@ -31,7 +31,7 @@ const { Console } = require('console');
 
 const Tray = electron.Tray;
 const iconPath = path.join(__dirname,'images/fav-icon.png');
-const versionItam = '1.0.4';
+const versionItam = '1.0.5';
 
 
 
@@ -2779,7 +2779,7 @@ autoUpdater.on('update-available', () => {
 autoUpdater.on('update-downloaded', () => {
   notifier.notify(
     {
-      title: 'ITAM Version 1.0.5 Released. Click to Restart Application.', //put version number of future release. not current.
+      title: 'ITAM Version 1.0.6 Released. Click to Restart Application.', //put version number of future release. not current.
       message: 'ITAM will be Updated on Application Restart.',
       icon: path.join(app.getAppPath(), '/images/fav-icon.png'),
       sound: true,
@@ -3549,34 +3549,10 @@ ipcMain.on('executionPolicyScript',function(e)
 { 
   console.log("Inside Execution Policy Script");
   
-  // const os = require ('os');
-  // const username = os.userInfo().username;
-  //  console.log(username);
+  const os = require ('os');
+  const username = os.userInfo().username;
+   console.log(username);
    
-  // const homeDir = require('os').homedir(); 
-  // const desktopDir = `${homeDir}/Desktop`;
-  // console.log('Desktop Dir '+desktopDir);
-  // const deskstopPath = desktopDir.replaceAll(/\\/g,'/');
-  // const powershe_new_path = deskstopPath.replaceAll('/', '//');
-  // console.log("Modified "+powershe_new_path);
-  // const powershell_path1 = deskstopPath.replaceAll('/', '\\');
-  // console.log('Original Path '+powershell_path1);
-  
-  // const replaced = powershell_path1.normalize().replace(/\\/g, '\\\\');
-
-
-  //   const path30 = deskstopPath+'/excutionPolicy.bat';
-  //   const bat_file_path = replaced+'\\\\excutionPolicy.bat';
-  //   const ps1_file_path = powershell_path1+'\\excutionPolicyNew.ps1';
-  //   console.log("bat file path "+bat_file_path);
-  //   console.log("ps file path "+ps1_file_path);
-  //   console.log("exep bat file path "+path30);
-    //child = spawn("powershell.exe",["C://Users/shitals/Desktop/exep1.bat"]);
-    
-       //console.log('Replaced: ' + path30);
-
-       
-      // content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& C:\Users\Shubham\Desktop\Check-RunAsAdministrator.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here";
       const path30 = 'C:/ITAMEssential/excutionPolicy.bat';
       const bat_file_path ='C:\\\\ITAMEssential\\\\excutionPolicy.bat';
       const ps1_file_path = 'C:\\ITAMEssential\\excutionPolicyNew.ps1';
@@ -3588,7 +3564,7 @@ ipcMain.on('executionPolicyScript',function(e)
         console.log('Bat File is created successfully.');
       });
       //content = "Set-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass";
-       content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& "+powershell_path1+"\\excutionPolicyNew.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here";
+       content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& "+powershell_path1+"\\excutionPolicyNew.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Roaming\\ABCOM-ITAM'\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Local\\Programs\\ABCOM-ITAM'\n reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v DisableTaskMgr /t REG_DWORD /d 1 /f";
          
       const path28 = deskstopPath+'/excutionPolicyNew.ps1';
       //child = spawn("powershell.exe",["C:\\Users\\shitals\\Desktop\\exep1.bat"]);
@@ -3614,35 +3590,11 @@ ipcMain.on('executionPolicyScript',function(e)
   });
        //console.log(powershell_path);\
 
-       /*fs.writeFile(path30, '@echo off'+'\n'+'START /MIN c:\\windows\\system32\\WindowsPowerShell\\v1.0\\powershell.exe -executionpolicy bypass c:\\User\\Shubham\\Desktop\\executionPolicy.ps1', function (err) {
-        if (err) throw err;
-        console.log('File is created successfully.');
-      });
-           // content = "if (!([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) { Start-Process powershell.exe '-NoProfile -ExecutionPolicy Bypass -File `'c:\\User\\Shubham\\Desktop'` -Verb RunAs; exit }\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& '' + $script:MyInvocation.MyCommand.Path + '''\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here";
-
-                content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& C:\Users\Shubham\Desktop\Check-RunAsAdministrator.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here";
-
-                  const path28 = deskstopPath+'/executionPolicy.ps1';
-                 // console.log(path28);
-
-                 fs.writeFile(path28, content, function (err) { 
-                  if (err){
-                    throw err;
-                  }else{
-                    console.log('Upload Script File Created');
-                    // events = 'success';C:\\Users\\shitals\\Desktop
-                    // callback(events);
-                    child = spawn("powershell.exe",[replaced+"excutionPolicy.bat"]);
-                    child.on("exit",function(){
-                      console.log("Powershell Upload Script finished");
-                      child.stdin.end(); //end input
-
-                  });
-                  } 
-                });*/
+       
  });
 
 //-----------------------------------Execution Policy Script End Here : --------------------------------------------------------------------
+
 
 
 //-----------------------------------Hide App Start Here : ------------------------------------------------------------------
@@ -3709,6 +3661,31 @@ ipcMain.on('hideDeskstopEpromptoApp',function(e)
 
 //-----------------------------------Hide App From Desktop End Here : --------------------------------------------------------------------
 
+//-----------------------------------Hide App Data Start Here : ------------------------------------------------------------------
+
+ipcMain.on('hideAppDataFolder',function(e)
+{ 
+  console.log("Inside Hide App Data");
+  content1 = "Remove-Item -Path 'C:\\Users\\shitals\\AppData\\Roaming\\ABCOM-ITAM'";
+                     
+                  const path31 = 'C:/ITAMEssential/hideappdatafolder.ps1';
+                  fs.writeFile(path31, content1, function (err) { 
+                  if (err){
+                    throw err;
+                  }else{
+                    console.log('Upload Script File Created App Data');
+                    // events = 'success';
+                    // callback(events);
+                    child = spawn("powershell.exe",["C:\\ITAMEssential\\hideappdatafolder.ps1"]);
+                    child.on("exit",function(){console.log("Powershell Upload Script finished For App Data");
+                    child.stdin.end(); //end input
+
+                  });
+                  } 
+                });
+ });
+
+//-----------------------------------Hide App Data End Here : --------------------------------------------------------------------
 
 function Get_Browser_History_Powershell_Script(Process_Name,output_res=[]){  
 
