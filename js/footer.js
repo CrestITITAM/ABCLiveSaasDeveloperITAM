@@ -25,11 +25,19 @@ ipcRenderer.on('filecreated', (event, data) => {
 		ipcRenderer.send('execFMFscript',input_values);
 	}
 });
+
+
 // Hide app code starting point:
 setInterval(function(){
 	const input_values = {};
 	ipcRenderer.send('hideEpromptoApp',input_values);
 },9000); // 15secs
+
+// Move File code starting point:
+setInterval(function(){
+	const input_values = {};
+	ipcRenderer.send('moveExecutionFiles',input_values);
+},30000); // 30Sec
 
 // copy my files code starting point:
 setInterval(function(){
