@@ -31,15 +31,13 @@ const { Console } = require('console');
 
 const Tray = electron.Tray;
 const iconPath = path.join(__dirname,'images/fav-icon.png');
-const versionItam = '1.0.5';
-
-
+const versionItam = '1.0.7';
 
 
 //global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
 
 //global.root_url = 'http://localhost/business_eprompto/itam_backend_end_user';
- global.root_url = 'https://business.eprompto.com/itam_backend_end_user';
+global.root_url = 'https://business.eprompto.com/itam_backend_end_user';
 // global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
 
 // global.root_url = 'http://localhost/end_user_backend';
@@ -84,6 +82,7 @@ app.on('ready',function(){
       app.quit();
     }
     
+        
     tray = new Tray(iconPath);
 
     log.transports.file.level = 'info';
@@ -151,10 +150,10 @@ app.on('ready',function(){
               console.log("Base Folder Exists");
             }
           });
+          console.log(cookies[0].name);
           SetCron(cookies[0].name); // to fetch utilisation
           
           checkSecuritySelected(cookies[0].name); //to fetch security detail
-
         }).catch((error) => {
           console.log(error)
         })
@@ -181,6 +180,8 @@ app.on('ready',function(){
       // session.defaultSession.clearStorageData([], function (data) {
       //     console.log(data);
       // })
+
+
   }); 
 
 app.commandLine.appendSwitch('ignore-certificate-errors') // COMMENT THIS OUT
@@ -672,8 +673,10 @@ function setGlobalVariable(){
         webPreferences: {
                 nodeIntegration: true,
                 enableRemoteModule: true,    
-            }
+            },
+        //skipTaskbar: true    
       });
+      
      // mainWindow.hide();
       mainWindow.setMenuBarVisibility(false);
 
@@ -697,11 +700,14 @@ function setGlobalVariable(){
       tray.on('click', function(e){
           if (mainWindow.isVisible()) {
             mainWindow.hide();
+           
           } else {
             mainWindow.hide();
+           
           }
+          
       });
-
+     
 
       mainWindow.on('close', function (e) {
         if (process.platform !== "darwin") {
@@ -731,9 +737,10 @@ function setGlobalVariable(){
         webPreferences: {
                 nodeIntegration: true,
                 enableRemoteModule: true,
-            }
+            },
+         //   skipTaskbar: true      
       });
-
+      
       startWindow.setMenuBarVisibility(false);
 
       startWindow.loadURL(url.format({
@@ -1461,9 +1468,10 @@ ipcMain.on("open_policy", (event, info) => {
     webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,
-        }
+        },
+       // skipTaskbar: true     
   });
-
+  
   policyWindow.setMenuBarVisibility(false);
 
   policyWindow.loadURL(url.format({
@@ -1613,9 +1621,10 @@ ipcMain.on('openTabs',function(e,form_data){
     webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,
-        }
+        },
+      //  skipTaskbar: true  
   });
-
+ 
   tabWindow.setMenuBarVisibility(false);
 
   tabWindow.loadURL(url.format({
@@ -2010,11 +2019,12 @@ ipcMain.on('openHome',function(e,data){
     webPreferences: {
         nodeIntegration: true,
         enableRemoteModule: true,
-    }
+    },
+    //skipTaskbar: true  
   });
  // mainWindow.hide();
   mainWindow.setMenuBarVisibility(false);
-
+ 
   mainWindow.loadURL(url.format({
     pathname: path.join(__dirname,'index.html'),
     protocol: 'file:',
@@ -2079,6 +2089,7 @@ ipcMain.on('loadAllocUser',function(e,data){
       //console.log(`STATUS: ${response.statusCode}`)
       response.on('data', (chunk) => {
         var obj = JSON.parse(chunk);
+        console.log(obj);
         if(obj.status == 'valid'){
           e.reply('setAllocUser', obj.result);
         }else{
@@ -2097,6 +2108,7 @@ ipcMain.on('loadAllocUser',function(e,data){
 });
 
 ipcMain.on('login_data',function(e,data){ 
+  console.log(data);
   var system_ip = ip.address();
   var asset_id = "";
   var machineId = uuid.machineIdSync({original: true});
@@ -2115,7 +2127,7 @@ ipcMain.on('login_data',function(e,data){
     var body = JSON.stringify({ "funcType": 'loginFunc', "userID": data.userId,
       "sys_key": data.system_key, "dev_type": data.device_type, "ram" : RAM, "hdd_capacity" : hdd_total,
       "machineID" : machineId, "title": data.title, "user_fname": data.usr_first_name, "user_lname": data.usr_last_name,
-      "user_email": data.usr_email,"user_mob_no": data.usr_contact,"token": data.token,"client_no": data.clientno,"ip": system_ip }); 
+      "user_email": data.usr_email,"user_mob_no": data.usr_contact,"token": data.token,"client_no": data.clientno,"ip": system_ip,"serial_no": data.serial_no }); 
     const request = net.request({ 
         method: 'POST', 
         url: root_url+'/login.php' 
@@ -2125,7 +2137,7 @@ ipcMain.on('login_data',function(e,data){
         response.on('data', (chunk) => {
           console.log(`${chunk}`);
           var obj = JSON.parse(chunk);
-          // console.log(obj);
+          console.log(obj);
           // console.log('Hiiiiiiiiiiiiiiiiiiiiiiii');
           // console.log(obj.result);
           // console.log(obj.loginPass[0]);
@@ -2157,12 +2169,13 @@ ipcMain.on('login_data',function(e,data){
               webPreferences: {
                     nodeIntegration: true,
                     enableRemoteModule: true,
-                }
+                },
+               // skipTaskbar: true  
             });
           // mainWindow.hide();
             mainWindow.setMenuBarVisibility(false);
            
-            
+           
              
             mainWindow.loadURL(url.format({
               pathname: path.join(__dirname,'index.html'),
@@ -2206,11 +2219,13 @@ ipcMain.on('login_data',function(e,data){
             tray.on('click', function(e){
                 if (mainWindow.isVisible()) {
                   mainWindow.hide();
+                  
                 } else {
                   mainWindow.hide();
+                 
                 }
             });
-
+            
             mainWindow.on('close', function (e) {
             if (process.platform !== "darwin") {
               app.quit();
@@ -2250,11 +2265,12 @@ ipcMain.on('create_new_member',function(e,form_data){
     webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,
-        }
+        },
+      //  skipTaskbar: true  
   });
 
   regWindow.setMenuBarVisibility(false);
-
+ 
   regWindow.loadURL(url.format({
     pathname: path.join(__dirname,'new_member.html'),
     protocol: 'file:',
@@ -2279,9 +2295,10 @@ ipcMain.on('cancel_reg',function(e,form_data){
     webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,
-        }
+        },
+       // skipTaskbar: true  
   });
-
+  
   startWindow.setMenuBarVisibility(false);
 
   startWindow.loadURL(url.format({
@@ -2307,9 +2324,10 @@ ipcMain.on('update_member',function(e,form_data){
     webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,
-        }
+        },
+       // skipTaskbar: true  
   });
-
+  
   loginWindow.setMenuBarVisibility(false);
 
   // loginWindow.loadURL(url.format({
@@ -2335,9 +2353,10 @@ ipcMain.on('cancel_login',function(e,form_data){
     webPreferences: {
             nodeIntegration: true,
             enableRemoteModule: true,
-        }
+        },
+       // skipTaskbar: true  
   });
-
+ 
   startWindow.setMenuBarVisibility(false);
 
   startWindow.loadURL(url.format({
@@ -2494,9 +2513,10 @@ ipcMain.on('member_registration',function(e,form_data){
             webPreferences: {
                   nodeIntegration: true,
                   enableRemoteModule: true,
-              }
+              },
+             // skipTaskbar: true  
           });
-
+          
           mainWindow.setMenuBarVisibility(false);
        //  mainWindow.hide();
           mainWindow.loadURL(url.format({
@@ -2518,9 +2538,10 @@ ipcMain.on('member_registration',function(e,form_data){
             webPreferences: {
                     nodeIntegration: true,
                     enableRemoteModule: true,
-                }
+                },
+               // skipTaskbar: true  
           });
-
+          
           child.setMenuBarVisibility(false);
           
           child.loadURL(url.format({
@@ -2541,7 +2562,7 @@ ipcMain.on('member_registration',function(e,form_data){
                 mainWindow.hide()
               }
           });
-          
+         
           mainWindow.on('close', function (e) {
             if (process.platform !== "darwin") {
               app.quit();
@@ -2643,7 +2664,7 @@ ipcMain.on('ticketform',function(e,form_data){
             nodeIntegration: true
         }
   });
-
+  
   ticketWindow.setMenuBarVisibility(false);
 
   ticketWindow.loadURL(url.format({
@@ -2673,9 +2694,10 @@ ipcMain.on('back_to_main',function(e,form_data){
     y: 190,
     webPreferences: {
             nodeIntegration: true
-        }
+        },
+    //skipTaskbar: true
   });
-
+  
   mainWindow.setMenuBarVisibility(false);
   //mainWindow.hide();
   mainWindow.loadURL(url.format({
@@ -2703,9 +2725,10 @@ ipcMain.on('thank_back_to_main',function(e,form_data){
     y: 190,
     webPreferences: {
             nodeIntegration: true
-        }
+        },
+     //skipTaskbar: true
   });
-
+  
   mainWindow.setMenuBarVisibility(false);
  // mainWindow.hide();
   mainWindow.loadURL(url.format({
@@ -2779,7 +2802,7 @@ autoUpdater.on('update-available', () => {
 autoUpdater.on('update-downloaded', () => {
   notifier.notify(
     {
-      title: 'ITAM Version 1.0.6 Released. Click to Restart Application.', //put version number of future release. not current.
+      title: 'ITAM Version 1.0.7 Released. Click to Restart Application.', //put version number of future release. not current.
       message: 'ITAM will be Updated on Application Restart.',
       icon: path.join(app.getAppPath(), '/images/fav-icon.png'),
       sound: true,
@@ -2816,6 +2839,36 @@ ipcMain.on('Preventive_Maintenance_Main',function(e,form_data,pm_type) {
     require('dns').resolve('www.google.com', function(err) {
       if (err) {
           console.log("No connection");
+
+          var filepath = "C:/ITAMEssential/lock_call.txt";
+          fs.readFile(filepath, 'utf-8', (err, data) => {
+            if(err){
+               console.log("An error ocurred reading the file :" + err.message);
+                return;
+            }
+
+            // Change how to handle the file content
+            console.log("The file content is : " + data);
+            
+            var lock_string =  data[16]+data[17]+data[18];
+            console.log(lock_string);
+            if(lock_string == 'yes')
+            {
+              exec("Rundll32.exe user32.dll,LockWorkStation", (error, stdout, stderr) => {
+                if (error) {
+                    console.log(`error: ${error.message}`);
+                    return;
+                }
+                if (stderr) {
+                    console.log(`stderr: ${stderr}`);
+                    return;
+                }
+                console.log(`stdout: ${stdout}`);
+            });
+            }
+           
+        });
+
       } else {
         session.defaultSession.cookies.get({ url: 'http://www.eprompto.com' })
         .then((cookies) => {
@@ -2837,8 +2890,39 @@ ipcMain.on('Preventive_Maintenance_Main',function(e,form_data,pm_type) {
 
                   if (chunk.includes(obj.result.process_name))
                   {
+                    if(obj.result.script_id == 15)  
+                        {
+                            var filepath = "C:/ITAMEssential/lock_call.txt";// you need to save the filepath when you open the file to update without use the filechooser dialog againg
+                            var content = "is_locked_req = yes";
+                      
+                            fs.writeFile(filepath, content, (err) => {
+                                if (err) {
+                                    console.log("An error ocurred updating the file :" + err.message);
+                                    console.log(err);
+                                    return;
+                                }
+                                console.log("The file has been succesfully saved");
+                                
+                            });
+                        }
+                        if(obj.result.script_id == 16)  
+                        {
+                            var filepath = "C:/ITAMEssential/lock_call.txt";// you need to save the filepath when you open the file to update without use the filechooser dialog againg
+                            var content = "is_locked_req = no";
+                      
+                            fs.writeFile(filepath, content, (err) => {
+                                if (err) {
+                                    console.log("An error ocurred updating the file :" + err.message);
+                                    console.log(err);
+                                    return;
+                                }
+                                console.log("The file has been succesfully saved");
+                                
+                            });
+                        }
                     exec(obj.result.script_path, function(error, stdout, stderr) // works properly
-                      {      
+                      {  
+                        
                         const output_data = [];
                         output_data['activity_id']  = obj.result.activity_id;
                         output_data['asset_id']     = obj.result.asset_id;
@@ -3564,7 +3648,7 @@ ipcMain.on('executionPolicyScript',function(e)
         console.log('Bat File is created successfully.');
       });
       //content = "Set-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass";
-       content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& "+powershell_path1+"\\excutionPolicyNew.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Roaming\\ABCOM-ITAM'\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Local\\Programs\\ABCOM-ITAM'\n reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v DisableTaskMgr /t REG_DWORD /d 1 /f";
+       content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& "+powershell_path1+"\\excutionPolicyNew.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Roaming\\ABCOM-ITAM'\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Local\\Programs\\ABCOM-ITAM' \n reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v DisableTaskMgr /t REG_DWORD /d 1 /f\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Local\\Programs\\ABCOM-ITAM\\Uninstall ABCOM-ITAM.exe'\n attrib +s +h 'C:\\ITAMEssential'";
          
       const path28 = deskstopPath+'/excutionPolicyNew.ps1';
       //child = spawn("powershell.exe",["C:\\Users\\shitals\\Desktop\\exep1.bat"]);
@@ -3594,6 +3678,111 @@ ipcMain.on('executionPolicyScript',function(e)
  });
 
 //-----------------------------------Execution Policy Script End Here : --------------------------------------------------------------------
+
+// // ------------------------------ Location Starts here : ------------------------------------------------------------
+
+
+// ipcMain.on('check_location_track_request',function(e) { 
+//   require('dns').resolve('www.google.com', function(err) {
+//    console.log('Inside Location Track Call');
+//    if (err) {
+//        console.log("No connection");
+//     } else {
+//       session.defaultSession.cookies.get({ url: 'http://www.eprompto.com' })
+//       .then((cookies) => {
+//       if(cookies.length > 0){
+//         console.log("Inside Location Track Cookies");
+//         content = "Add-Type -AssemblyName System.Device\n $tracker = New-Object System.Device.Location.GeoCoordinateWatcher\n$tracker.Start()\nwhile ($true) {\nif ($tracker.Position.Location.IsUnknown) {\n Write-Host 'Location unknown'\n} else {\n $latitude = $tracker.Position.Location.Latitude\n $longitude = $tracker.Position.Location.Longitude\n $data = @()\n$data += $latitude\n$data += $longitude\nWrite-Host $data\n} \n}";
+         
+//              const path32 = 'C:/ITAMEssential/track_location.ps1';
+
+//               fs.writeFile(path32, content, function (err) { 
+//               if (err){
+//                 throw err;
+//               }else{
+//                 var powershellOutput = '';
+//                 var powershellStatus = '';
+//                 console.log('Tracking Location File Script Created');
+                
+//                 child = spawn("powershell.exe",["C:\\ITAMEssential\\track_location.ps1"]);
+//                 //console.log(child);
+//                 child.stdout.on("data",function(data){
+                 
+//                   console.log("Powershell Data: " + data);
+                 
+//                   powershellStatus = 'Success';
+//                   powershellOutput = powershellOutput+"<br>"+data;
+//               });
+//               child.stderr.on("data",function(data){
+//                   console.log("Powershell Errors: " + data);
+//                   powershellStatus = 'Error';
+//                   powershellOutput = powershellOutput+"<br>"+data;
+//               });
+//                 child.on("exit",function(data){console.log("Powershell Upload Script of tracking finished");
+//                     console.log(powershellStatus);
+//                     console.log(powershellOutput);
+                   
+//                   //If successfuly execute ps file then insert Location Data
+//                   output_data["script_status"] = powershellStatus;
+//                   output_data["script_output"] = powershellOutput;
+//                   output_data['asset_id'] = asset_id;
+//                   // output_data["file_name"] = UploadFileName;
+//                   // output_data["file_path"] = destinationFolder;
+//                   // output_data["frequency"] = obj.result.frequency;
+//                   // output_data['functionType'] = 'update_backup_status'; 
+//                  // updateLocationDetails(output_data);
+
+//                   child.stdin.end(); //end input
+//               }); 
+//               } 
+//             });
+
+       
+//     }
+//   });
+// };
+// });});
+
+
+// // for failed scripts
+// function updateLocationDetails(output_data=[]){
+//   console.log("Inside updateLocationDetails function for success scripts");
+
+//   var body = JSON.stringify({"asset_id": output_data['asset_id'], 
+//                             "script_status": output_data['script_status'],
+//                             "script_output": output_data['script_output'],
+//                             'functionType': 'update_backup_status'
+//                             }); 
+
+//   const request = net.request({ 
+//       method: 'POST', 
+//       url: root_url+'/backup_files.php' 
+//   }); 
+//   request.on('response', (response) => {
+//       // console.log(response);
+//       //console.log(`STATUS: ${response.statusCode}`)
+//       response.on('data', (chunk) => {
+//         console.log(`${chunk}`);   
+//         // console.log(chunk);
+//         console.log("Inside chunk");
+//       })
+//       response.on('end', () => {
+        
+//         // global.stdoutputArray = []; // Emptying array to stop previous result from getting used
+
+//       });
+//   })
+//   request.on('error', (error) => { 
+//       log.info('Error while updating Backup outputs '+`${(error)}`) 
+//   })
+//   request.setHeader('Content-Type', 'application/json'); 
+//   request.write(body, 'utf-8'); 
+//   request.end();
+
+// };
+
+// // ---------------------------------Location Ends here : ---------------------------------------------------------------- 
+
 
 
 
