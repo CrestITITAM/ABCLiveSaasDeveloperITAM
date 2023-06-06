@@ -75,7 +75,7 @@
 ipcRenderer.send('get_company_logo');
 
 ipcRenderer.on('checked_company_logo', (event, data) => {
-  // console.log(data);
+  console.log(data);
   if(data[0]){
     document.getElementById("company_logo").src = 'https://business.eprompto.com/assets/backend//uploads/media/'+data[0];
     // document.getElementById("company_logo").style.visibility = "visible";

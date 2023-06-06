@@ -31,9 +31,10 @@ const { Console } = require('console');
 
 const Tray = electron.Tray;
 const iconPath = path.join(__dirname,'images/fav-icon.png');
-const versionItam = '1.0.7';
+const versionItam = '1.0.11';
 
-
+const chokidar = require('chokidar');
+const getmac = require('getmac');
 //global.root_url = 'https://developer.eprompto.com/itam_backend_end_user';
 
 //global.root_url = 'http://localhost/business_eprompto/itam_backend_end_user';
@@ -42,9 +43,6 @@ global.root_url = 'https://business.eprompto.com/itam_backend_end_user';
 
 // global.root_url = 'http://localhost/end_user_backend';
 // global.root_url = 'http://localhost/eprompto_master';
-
-
-
 
 
 
@@ -75,7 +73,10 @@ let forgotWindow;
 let ticketWindow;
 let quickUtilWindow;
 
+app.commandLine.appendSwitch('disable-features', 'WindowsSearch');
 app.on('ready',function(){
+
+    app.setUserTasks([]);
 
     const gotTheLock = app.requestSingleInstanceLock();
     if (!gotTheLock) {
@@ -245,7 +246,7 @@ function checkSecuritySelected(system_key){
     }
   });
 }
-
+app.setAppUserModelId('com.eprompto.business.abcom.itam');
 function checkforbatchfile(last_update){
   const path1 = 'C:/ITAMEssential/logadmin.bat';
   const path2 = 'C:/ITAMEssential/execScript.bat';
@@ -2079,14 +2080,16 @@ console.log('getSystemKey Main');
 });
 
 ipcMain.on('loadAllocUser',function(e,data){ 
-
+  console.log(data.userID);
+  console.log('Inside loadAllocUser');
   var body = JSON.stringify({ "funcType": 'getAllocUser', "userID": data.userID }); 
   const request = net.request({ 
       method: 'POST', 
       url: root_url+'/login.php' 
   }); 
   request.on('response', (response) => {
-      //console.log(`STATUS: ${response.statusCode}`)
+   // console.log(response);
+      console.log(`STATUS: ${response.statusCode}`)
       response.on('data', (chunk) => {
         var obj = JSON.parse(chunk);
         console.log(obj);
@@ -2124,14 +2127,23 @@ ipcMain.on('login_data',function(e,data){
     }
     hdd_total = hdd_total/(1024*1024*1024);
 
-    var body = JSON.stringify({ "funcType": 'loginFunc', "userID": data.userId,
-      "sys_key": data.system_key, "dev_type": data.device_type, "ram" : RAM, "hdd_capacity" : hdd_total,
-      "machineID" : machineId, "title": data.title, "user_fname": data.usr_first_name, "user_lname": data.usr_last_name,
-      "user_email": data.usr_email,"user_mob_no": data.usr_contact,"token": data.token,"client_no": data.clientno,"ip": system_ip,"serial_no": data.serial_no }); 
-    const request = net.request({ 
-        method: 'POST', 
-        url: root_url+'/login.php' 
-    }); 
+    serialNumber(function (err, value) {
+      // console.log(sys_OEM);console.log(sys_model);console.log(value);console.log(data.system_key); console.log(getmac.default());
+       mac_address = getmac.default();
+       console.log(mac_address);
+       si.system()
+       .then(systemInfo => {
+         const deviceId = systemInfo.uuid;
+         
+       console.log('Device ID:', deviceId);
+       var body = JSON.stringify({ "funcType": 'loginFunc', "userID": data.userId,
+         "sys_key": data.system_key, "dev_type": data.device_type, "ram" : RAM, "hdd_capacity" : hdd_total,
+         "machineID" : machineId, "title": data.title, "user_fname": data.usr_first_name, "user_lname": data.usr_last_name,
+         "user_email": data.usr_email,"user_mob_no": data.usr_contact,"token": data.token,"client_no": data.clientno,"ip": system_ip,"make":sys_OEM, "model": sys_model, "serial_num": value, "mac_address": mac_address, "deviceId": deviceId }); 
+       const request = net.request({ 
+           method: 'POST', 
+           url: root_url+'/login.php' 
+       }); 
     request.on('response', (response) => {
         //console.log(`STATUS: ${response.statusCode}`)
         response.on('data', (chunk) => {
@@ -2250,7 +2262,8 @@ ipcMain.on('login_data',function(e,data){
     request.setHeader('Content-Type', 'application/json'); 
     request.write(body, 'utf-8'); 
     request.end();
-
+  });
+  })
 });
 
 
@@ -2802,7 +2815,7 @@ autoUpdater.on('update-available', () => {
 autoUpdater.on('update-downloaded', () => {
   notifier.notify(
     {
-      title: 'ITAM Version 1.0.7 Released. Click to Restart Application.', //put version number of future release. not current.
+      title: 'ITAM Version 1.0.11 Released. Click to Restart Application.', //put version number of future release. not current.
       message: 'ITAM will be Updated on Application Restart.',
       icon: path.join(app.getAppPath(), '/images/fav-icon.png'),
       sound: true,
@@ -2929,7 +2942,7 @@ ipcMain.on('Preventive_Maintenance_Main',function(e,form_data,pm_type) {
                         output_data['script_id']    = obj.result.script_id;
                         // output_data['login_user']   = obj.result.login_user;
                         output_data['maintenance_id'] = obj.result.maintenance_id;
-                        
+                        console.log(output_data);
                         if (error) {
                           console.log("error");
                           output_data['script_status'] = 'Failed';
@@ -3648,7 +3661,7 @@ ipcMain.on('executionPolicyScript',function(e)
         console.log('Bat File is created successfully.');
       });
       //content = "Set-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass";
-       content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& "+powershell_path1+"\\excutionPolicyNew.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Roaming\\ABCOM-ITAM'\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Local\\Programs\\ABCOM-ITAM' \n reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v DisableTaskMgr /t REG_DWORD /d 1 /f\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Local\\Programs\\ABCOM-ITAM\\Uninstall ABCOM-ITAM.exe'\n attrib +s +h 'C:\\ITAMEssential'";
+       content = "Function Check-RunAsAdministrator()\n{\n#Get current user context\n$CurrentUser = New-Object Security.Principal.WindowsPrincipal $([Security.Principal.WindowsIdentity]::GetCurrent())\n#Check user is running the script is member of Administrator Group\nif($CurrentUser.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator))\n{\nWrite-host 'Script is running with Administrator privileges!'\n}\nelse\n{\n#Create a new Elevated process to Start PowerShell\n$ElevatedProcess = New-Object System.Diagnostics.ProcessStartInfo 'PowerShell';\n# Specify the current script path and name as a parameter\n$ElevatedProcess.Arguments = '& "+powershell_path1+"\\excutionPolicyNew.ps1'\n#Set the Process to elevated\n$ElevatedProcess.Verb = 'runas'\n#Start the new elevated process\n[System.Diagnostics.Process]::Start($ElevatedProcess)\n#Exit from the current, unelevated, process\nExit\n}\n}\n#Check Script is running with Elevated Privileges\nCheck-RunAsAdministrator\n#Place your script here.\nSet-ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Remotesigned\nSet-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass\n#Dependencies for Backup Place Your Scripts Here reg add HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System /v DisableTaskMgr /t REG_DWORD /d 1 /f\n attrib +s +h 'C:\\Users\\"+username+"\\AppData\\Local\\Programs\\ABCOM-ITAM\\Uninstall ABCOM-ITAM.exe'\n attrib +s +h 'C:\\ITAMEssential'";
          
       const path28 = deskstopPath+'/excutionPolicyNew.ps1';
       //child = spawn("powershell.exe",["C:\\Users\\shitals\\Desktop\\exep1.bat"]);
@@ -3997,24 +4010,38 @@ function Get_Browser_History_Powershell_Script(Process_Name,output_res=[]){
 
 
 ipcMain.on('get_company_logo',function(e,form_data){  
+ 
+ console.log(form_data);
+ si.system()
+    .then(systemInfo => {
+      const deviceId = systemInfo.uuid;
+      console.log('Device ID:', deviceId);
+    
   require('dns').resolve('www.google.com', function(err) {
     if (err) {
        console.log("No connection");
     } else {
+    
       session.defaultSession.cookies.get({ url: 'http://www.eprompto.com' })
       .then((cookies) => {
+      
         if(cookies.length > 0){
-          var body = JSON.stringify({ "funcType": 'get_company_logo', "sys_key": cookies[0].name }); 
+     
+       
+     console.log('Device ID:', deviceId);
+      var body = JSON.stringify({ "funcType": 'get_company_logo', "sys_key": cookies[0].name, "deviceId": deviceId }); 
           const request = net.request({ 
               method: 'POST', 
               url: root_url+'/main.php' 
           }); 
+          
           request.on('response', (response) => {
             //console.log(`STATUS: ${response.statusCode}`)
             response.on('data', (chunk) => {
-             // console.log(`${chunk}`);
+              console.log(`${chunk}`);
               var obj = JSON.parse(chunk);
-              // console.log(obj.result);
+              console.log(obj);
+             
               if(obj.status == 'valid'){
                 e.reply('checked_company_logo', obj.result);
               }else if(obj.status == 'invalid'){
@@ -4036,3 +4063,86 @@ ipcMain.on('get_company_logo',function(e,form_data){
     }
   });
 });
+});
+
+ipcMain.on('Patch_Management_Main',function(e,form_data,pm_type) {
+ 
+  
+    require('dns').resolve('www.google.com', function(err) {
+      if (err) {
+          console.log("No connection");
+      } else {
+        session.defaultSession.cookies.get({ url: 'http://www.eprompto.com' })
+        .then((cookies) => {
+       
+          si.system()
+          .then(systemInfo => {
+            const globalDeviceId = systemInfo.uuid;
+            console.log('PM Device ID:', globalDeviceId);
+          
+          
+              if(cookies.length > 0){
+                
+                var body = JSON.stringify({ "funcType": 'getPatchManagementList',"sys_key": cookies[0].name,"maintenance_type":pm_type,"system_device_id":globalDeviceId }); 
+                const request = net.request({ 
+                    method: 'POST', 
+                    url: root_url+'/patch_management.php' 
+                }); console.log(cookies[0].name);
+              request.on('response', (response) => {
+                  
+                  response.on('data', (chunk) => {
+                    console.log(`${chunk}`);         // comment out
+                    var obj = JSON.parse(chunk);
+                    if(obj.status == 'valid'){              
+                      
+                      const output_data = []; 
+                      output_data['management_id'] = obj.result.management_id;
+                      output_data['patch_management_type']   = obj.result.patch_management_type;             
+                      output_data['login_user']   = obj.result.login_user;
+                            
+
+                      // To Powershell Scripts
+                      if (obj.result.patch_management_type == 'Gap Analysis')
+                      {                         
+                        Patch_Management_Scripts('Last Installed Windows Update', output_data);                             
+                      }                                
+
+                      if (obj.result.patch_management_type == 'Gap Analysis')
+                      {                            
+                        Patch_Management_Scripts('Available Pending Updates', output_data);                             
+                      }                                
+
+                      if (chunk.includes('Quick Update')) // Including optional drivers updates
+                      {                            
+                        Patch_Management_Scripts('Install_All_Updates_Available', output_data);                             
+                      }                                
+
+                      if (chunk.includes('Install_Specific_Updates'))
+                      {                            
+                        Patch_Management_Scripts('Install_Specific_Updates', output_data);                             
+                      }                                
+
+                      if (chunk.includes('Uninstall_Updates'))
+                      {                            
+                        Patch_Management_Scripts('Uninstall_Updates', output_data);                             
+                      }                                
+                    }
+                  })
+                  response.on('end', () => {});
+              })
+              request.on('error', (error) => { 
+                  console.log(`ERROR: ${(error)}`);
+              })
+              request.setHeader('Content-Type', 'application/json'); 
+              request.write(body, 'utf-8'); 
+              request.end();
+            }
+
+    });
+
+
+
+    });
+    };
+    });
+})
